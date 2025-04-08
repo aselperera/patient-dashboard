@@ -55,4 +55,23 @@ describe('usePatients hook', () => {
 		expect(result.current.error?.message).toBe('Failed to fetch');
 		expect(result.current.patients).toEqual([]);
 	});
+
+	it('should handle non-OK response', async () => {
+		// Mock a response with non-OK status
+		global.fetch = jest.fn(() =>
+			Promise.resolve({
+				ok: false,
+				status: 500,
+			})
+		) as jest.Mock;
+
+		const { result } = renderHook(() => usePatients());
+
+		await waitFor(() => {
+			expect(result.current.loading).toBe(false);
+		});
+
+		expect(result.current.error?.message).toBe('Failed to fetch patients');
+		expect(result.current.patients).toEqual([]);
+	});
 });
